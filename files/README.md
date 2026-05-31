@@ -148,6 +148,3 @@ Per §12, naming the gaps scores higher than hiding them. The ones a reviewer ru
 
 4. **Cursor precision / re-pull** (see Q1). Millisecond cursor vs. potentially sub-millisecond API timestamps can cause the newest call to be re-fetched each poll cycle. Dedup keeps the logical count at 1; the cost is wasted ingests plus MV inflation. Diagnose with `SELECT count() FROM calls` vs `SELECT count() FROM calls FINAL`, and compare `ingest_cursor` against `max(started_at)`.
 
-## Configuration
-
-See `.env.example`. Do not commit secrets.
