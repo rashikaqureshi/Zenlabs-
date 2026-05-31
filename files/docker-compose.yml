@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24-alpine
+    container_name: clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_DB: analytics
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: admin
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8123/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  streamlit:
+    image: python:3.11-slim
+    container_name: analytics-dashboard
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "8501:8501"
+    environment:
+      CLICKHOUSE_HOST: clickhouse
+      CLICKHOUSE_PORT: 8123
+      CLICKHOUSE_DATABASE: analytics
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: admin
+    command: >
+      bash -c "pip install -q -r requirements.txt &&
+               streamlit run dashboard/app.py --server.address=0.0.0.0"
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+
+volumes:
+  clickhouse_data:
