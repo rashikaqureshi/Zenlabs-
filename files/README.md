@@ -4,7 +4,7 @@ Side-car analytics pipeline: **zenlabs emits per-call metrics → this service p
 
 Stack: Python 3.9+, `clickhouse-connect` (HTTP), zenlabs Python SDK, local ClickHouse 24 via Docker.
 
-> **Schema note (Q3):** `calls` is `ReplacingMergeTree(ingested_at)` with
+> **Schema note:** `calls` is `ReplacingMergeTree(ingested_at)` with
 > `ORDER BY (tenant_id, call_id)`. `started_at` is deliberately kept *out* of the
 > sort key, so a replayed `call_id` collapses to a single row even if its
 > `started_at` drifts on re-pull. `sql/002_rebuild_calls_order_key.sql` migrates a
@@ -144,10 +144,7 @@ Per §12, naming the gaps scores higher than hiding them. The ones a reviewer ru
 
 2. **`num_turns` is user turns only.** The API exposes `user_turn_count`, not agent turns, so the stored value is a floor, not the §6 "total user+agent turns." Documented rather than inferred.
 
-3. **`calls_daily` is not replay-safe** (see Q3). The MV double-counts re-ingested calls; the six shipped queries avoid it by reading `calls FINAL`.
+3. **`calls_daily` is not replay-safe** . The MV double-counts re-ingested calls; the six shipped queries avoid it by reading `calls FINAL`.
 
-4. **Cursor precision / re-pull** (see Q1). Millisecond cursor vs. potentially sub-millisecond API timestamps can cause the newest call to be re-fetched each poll cycle. Dedup keeps the logical count at 1; the cost is wasted ingests plus MV inflation. Diagnose with `SELECT count() FROM calls` vs `SELECT count() FROM calls FINAL`, and compare `ingest_cursor` against `max(started_at)`.
+4. **Cursor precision / re-pull**. Millisecond cursor vs. potentially sub-millisecond API timestamps can cause the newest call to be re-fetched each poll cycle. Dedup keeps the logical count at 1; the cost is wasted ingests plus MV inflation. Diagnose with `SELECT count() FROM calls` vs `SELECT count() FROM calls FINAL`, and compare `ingest_cursor` against `max(started_at)`.
 
-## Configuration
-
-See `.env.example`. Do not commit secrets.
