@@ -1,3 +1,8 @@
+"""
+Pure mapping: zenlabs session / CallMetric → ClickHouse row dict.
+No I/O — safe to unit test.
+"""
+
 from __future__ import annotations
 
 from datetime import datetime, timezone

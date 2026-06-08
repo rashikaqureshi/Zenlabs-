@@ -1,7 +1,3 @@
-"""
-Poll zenlabs dashboard sessions. Knows zenlabs only — no ClickHouse imports.
-"""
-
 from __future__ import annotations
 
 from datetime import datetime, timezone

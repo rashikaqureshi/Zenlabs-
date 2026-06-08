@@ -1,8 +1,3 @@
-"""
-Batch INSERT into ClickHouse. Idempotency is enforced by ReplacingMergeTree(ingested_at)
-on `calls`, not by skipping rows in application code.
-"""
-
 from __future__ import annotations
 
 from typing import Any

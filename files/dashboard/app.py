@@ -1,4 +1,3 @@
-"""Streamlit dashboard — six canonical queries as cards (IST display)."""
 
 from __future__ import annotations
 
